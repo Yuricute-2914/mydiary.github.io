@@ -1,1 +1,1 @@
-# mydiary.io
+# mydiary.github.io
