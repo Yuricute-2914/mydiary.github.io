@@ -1,19 +1,13 @@
 <script lang="ts">
     import { onMount } from 'svelte';
 
-    let entries: Array<{
-        id: number;
-        title: string;
-        content: string;
-        date: string;
-        media: { photo?: string; video?: string; audio?: string };
-    }> = [];
+    let entries = [];
     let title = '';
     let content = '';
-    let photo: File | null = null;
-    let video: File | null = null;
-    let audio: File | null = null;
-    let editId: number | null = null;
+    let photo = null;
+    let video = null;
+    let audio = null;
+    let editId = null;
 
     function addEntry() {
         if (title.trim() === '' || content.trim() === '') return;
@@ -25,7 +19,6 @@
         };
 
         if (editId !== null) {
-            // Edit an existing entry
             entries = entries.map((entry) =>
                 entry.id === editId
                     ? { ...entry, title, content, date: new Date().toLocaleString(), media }
@@ -33,7 +26,6 @@
             );
             editId = null;
         } else {
-            // Add a new entry
             entries = [
                 ...entries,
                 {
@@ -46,7 +38,6 @@
             ];
         }
 
-        // Reset inputs
         title = '';
         content = '';
         photo = null;
@@ -54,7 +45,7 @@
         audio = null;
     }
 
-    function editEntry(id: number) {
+    function editEntry(id) {
         const entry = entries.find((e) => e.id === id);
         if (entry) {
             title = entry.title;
@@ -63,63 +54,62 @@
         }
     }
 
-    function deleteEntry(id: number) {
+    function deleteEntry(id) {
         entries = entries.filter((entry) => entry.id !== id);
     }
 </script>
 
-<main class="max-w-2xl mx-auto p-5">
-    <h1 class="text-4xl font-bold text-center mb-6">Diary</h1>
+<main class="max-w-3xl mx-auto p-5">
+    <h1 class="text-5xl font-extrabold text-center mb-8 gradient-text">My Diary</h1>
 
-    <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h2 class="text-2xl font-semibold mb-4">{editId ? 'Edit Entry' : 'New Entry'}</h2>
+    <div class="entry-form shadow-lg p-6 rounded-lg mb-6 bg-opacity-90">
+        <h2 class="text-2xl font-bold mb-4">{editId ? 'Edit Entry' : 'New Entry'}</h2>
         <input
             type="text"
             bind:value={title}
-            placeholder="Title"
-            class="w-full p-3 border rounded mb-4"
+            placeholder="Entry Title"
+            class="input-field mb-4"
         />
         <textarea
             bind:value={content}
-            placeholder="Write your thoughts..."
-            class="w-full p-3 border rounded h-28 resize-none"
+            placeholder="Your thoughts..."
+            class="input-field mb-4"
         ></textarea>
-        <label class="block mb-2">Attach Photo:</label>
-        <input type="file" accept="image/*" on:change={(e) => (photo = e.target.files[0])} />
-        <label class="block mt-4 mb-2">Attach Video:</label>
-        <input type="file" accept="video/*" on:change={(e) => (video = e.target.files[0])} />
-        <label class="block mt-4 mb-2">Attach Audio:</label>
-        <input type="file" accept="audio/*" on:change={(e) => (audio = e.target.files[0])} />
+        <label class="block mb-2 text-sm">Attach Photo:</label>
+        <input type="file" accept="image/*" on:change={(e) => (photo = e.target.files[0])} class="mb-4"/>
+        <label class="block mb-2 text-sm">Attach Video:</label>
+        <input type="file" accept="video/*" on:change={(e) => (video = e.target.files[0])} class="mb-4"/>
+        <label class="block mb-2 text-sm">Attach Audio:</label>
+        <input type="file" accept="audio/*" on:change={(e) => (audio = e.target.files[0])} class="mb-4"/>
         <button
             on:click={addEntry}
-            class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 mt-4"
+            class="btn-primary mt-4 w-full"
         >
-            {editId ? 'Update' : 'Post'}
+            {editId ? 'Update Entry' : 'POST'}
         </button>
     </div>
 
-    <div class="space-y-4">
+    <div class="entries space-y-6">
         {#if entries.length === 0}
-            <p class="text-gray-500 text-center">No entries yet. Start writing!</p>
+            <p class="text-center text-gray-500">No entries yet. Start writing!</p>
         {/if}
-
         {#each entries as entry}
-            <div class="bg-gray-100 p-5 rounded-lg shadow-md">
-                <div class="flex justify-between items-start mb-3">
+            <div class="entry bg-white rounded-lg shadow-lg p-5">
+                <div class="flex justify-between items-center mb-4">
                     <div>
                         <h3 class="text-xl font-bold">{entry.title}</h3>
                         <p class="text-sm text-gray-500">{entry.date}</p>
                     </div>
-                    <div class="space-x-2">
+                    <div class="space-x-3">
                         <button
-                            class="text-blue-500 hover:text-blue-700"
                             on:click={() => editEntry(entry.id)}
+                            class="btn-link"
                         >
                             Edit
                         </button>
                         <button
-                            class="text-red-500 hover:text-red-700"
                             on:click={() => deleteEntry(entry.id)}
+                            class="btn-link text-red-500"
                         >
                             Delete
                         </button>
@@ -127,13 +117,13 @@
                 </div>
                 <p>{entry.content}</p>
                 {#if entry.media.photo}
-                    <img src={entry.media.photo} alt="Photo" class="mt-4 max-w-full rounded" />
+                    <img src={entry.media.photo} alt="Attached photo" class="media mt-4" />
                 {/if}
                 {#if entry.media.video}
-                    <video controls src={entry.media.video} class="mt-4 w-full rounded"></video>
+                    <video controls src={entry.media.video} class="media mt-4"></video>
                 {/if}
                 {#if entry.media.audio}
-                    <audio controls src={entry.media.audio} class="mt-4 w-full"></audio>
+                    <audio controls src={entry.media.audio} class="mt-4"></audio>
                 {/if}
             </div>
         {/each}
@@ -142,8 +132,65 @@
 
 <style>
     body {
-        font-family: 'Inter', sans-serif;
-        background: linear-gradient(to bottom, #f9fafb, #e5e7eb);
-        min-height: 100vh;
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(to bottom, #f3e7e9, #e3eeff);
+        margin: 0;
+        padding: 0;
+        color: #333;
+    }
+
+    h1.gradient-text {
+        background: linear-gradient(90deg, #ff8a00, #e52e71);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .input-field {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+        border-color: #6c63ff;
+        outline: none;
+        box-shadow: 0 0 5px rgba(108, 99, 255, 0.5);
+    }
+
+    .btn-primary {
+        background: linear-gradient(to right, #6c63ff, #9066ff);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(to right, #9066ff, #6c63ff);
+        transform: scale(1.02);
+    }
+
+    .btn-link {
+        background: none;
+        border: none;
+        color: #6c63ff;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+
+    .btn-link:hover {
+        color: #9066ff;
+    }
+
+    .media {
+        max-width: 100%;
+        border-radius: 8px;
     }
 </style>
